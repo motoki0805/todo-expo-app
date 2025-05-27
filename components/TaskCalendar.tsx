@@ -57,6 +57,7 @@ const TaskCalendar = ({
 const styles = StyleSheet.create({
   calendarContainer: {
     width: "95%",
+    marginInline: "auto",
     marginBottom: 20,
     borderWidth: 1,
     borderColor: "#ccc",

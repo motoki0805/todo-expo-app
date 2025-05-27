@@ -40,7 +40,6 @@ const TaskList = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.listHeader}>取得したタスク一覧</Text>
       {loading ? (
         <Text style={styles.loadingText}>データを読み込み中...</Text>
       ) : error ? (

@@ -27,16 +27,17 @@ const TaskItem = ({
   >
     <Text style={[styles.title, { color: textColor }]}>{item.title}</Text>
     <Text style={[styles.content, { color: textColor }]}>
-      内容: {item.content}
+      車体番号: {item.chassis_number}
     </Text>
     <Text style={[styles.content, { color: textColor }]}>
-      車種: {item.name}
+      内容: {item.content}
     </Text>
+
     <Text style={[styles.content, { color: textColor }]}>
       カラー: {item.color_code}
     </Text>
     <Text style={[styles.content, { color: textColor }]}>
-      車体番号: {item.chassis_number}
+      担当者: {item.u_name}
     </Text>
   </TouchableOpacity>
 );

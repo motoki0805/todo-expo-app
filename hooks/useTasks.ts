@@ -15,6 +15,9 @@ type UseTasksResult = {
   fetchTasks: (date_param?: string) => Promise<void>;
   onDayPress: (day: { dateString: string }) => void;
   onItemPress: (id: string) => void;
+  onAddButtonPress: () => void;
+  onEditButtonPress: () => void;
+  onSettingButtonPress: () => void;
 };
 
 /**
@@ -112,6 +115,18 @@ export const useTasksLogic = (): UseTasksResult => {
     setSelectedId(id);
   }, []);
 
+  const onAddButtonPress = useCallback(() => {
+    console.log("追加ボタン押下");
+  }, []);
+
+  const onEditButtonPress = useCallback(() => {
+    console.log("編集ボタン押下");
+  }, []);
+
+  const onSettingButtonPress = useCallback(() => {
+    console.log("設定ボタン押下");
+  }, []);
+
   return {
     selected_id,
     setSelectedId,
@@ -123,5 +138,8 @@ export const useTasksLogic = (): UseTasksResult => {
     fetchTasks,
     onDayPress,
     onItemPress,
+    onAddButtonPress,
+    onEditButtonPress,
+    onSettingButtonPress,
   };
 };
