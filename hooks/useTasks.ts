@@ -2,22 +2,35 @@ import { TaskData } from "@/types/data";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 
-const API_BASE_URL = "http://localhost/api";
+export const API_BASE_URL = "http://localhost/api";
+
+type NewTaskData = {
+  title: string;
+  content: string;
+  name: string;
+  colorCode?: string | null;
+  chassisNumber?: string | null;
+  uName?: string | null;
+  workId: number;
+  carId: number;
+  userId: number;
+  remark?: string | null;
+  completion: string;
+};
+
 
 type UseTasksResult = {
-  selected_id: string | undefined;
+  selectedId: string | undefined;
   setSelectedId: (id: string | undefined) => void;
   tasks: TaskData[];
   loading: boolean;
   error: string | null;
-  selected_data: string | null;
-  marked_dates: { [key: string]: any };
+  selectedData: string | null;
+  markedDates: { [key: string]: any };
   fetchTasks: (date_param?: string) => Promise<void>;
+  createTask: (newTask: NewTaskData) => Promise<boolean>;
   onDayPress: (day: { dateString: string }) => void;
   onItemPress: (id: string) => void;
-  onAddButtonPress: () => void;
-  onEditButtonPress: () => void;
-  onSettingButtonPress: () => void;
 };
 
 /**
@@ -28,12 +41,12 @@ type UseTasksResult = {
  *
  */
 export const useTasksLogic = (): UseTasksResult => {
-  const [selected_id, setSelectedId] = useState<string>();
+  const [selectedId, setSelectedId] = useState<string>();
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selected_data, setSelectedDate] = useState<string | null>(null);
-  const [marked_dates, setMarkedDates] = useState<{ [key: string]: any }>({});
+  const [selectedData, setSelectedDate] = useState<string | null>(null);
+  const [markedDates, setMarkedDates] = useState<{ [key: string]: any }>({});
 
   const fetchTasks = useCallback(async (date_param?: string) => {
     try {
@@ -79,6 +92,44 @@ export const useTasksLogic = (): UseTasksResult => {
     }
   }, []);
 
+  const createTask = useCallback(async (newTask: NewTaskData): Promise<boolean> => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await axios.post(`${API_BASE_URL}/tasks`, newTask);
+
+      if (response.status === 201 || response.status === 200) {
+        console.log("タスク登録成功:", response.data);
+
+        await fetchTasks(selectedData || undefined);
+        return true;
+      } else {
+        setError(`タスクの登録に失敗しました。ステータスコード: ${response.status}`);
+        return false;
+      }
+    } catch (err) {
+      console.error("タスク登録エラー:", err);
+
+      if (axios.isAxiosError(err) && err.response) {
+        const errorData = err.response.data;
+        if (errorData.errors) {
+          const validationErrors = Object.values(errorData.errors).flat().join('\n');
+          setError(`登録エラー:\n${validationErrors}`);
+        } else if (errorData.message) {
+          setError(`登録エラー: ${errorData.message}`);
+        } else {
+          setError(`登録エラー: ${err.response.status} ${err.response.statusText}`);
+        }
+      } else {
+        setError(`不明な登録エラー: ${err instanceof Error ? err.message : String(err)}`);
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchTasks, selectedData]);
+
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
@@ -99,7 +150,7 @@ export const useTasksLogic = (): UseTasksResult => {
     });
 
     setMarkedDates(newMarkedDates);
-  }, [tasks, selected_data]);
+  }, [tasks, selectedData]);
 
   // カレンダーの日付が選択された時のハンドラー
   const onDayPress = useCallback(
@@ -115,31 +166,18 @@ export const useTasksLogic = (): UseTasksResult => {
     setSelectedId(id);
   }, []);
 
-  const onAddButtonPress = useCallback(() => {
-    console.log("追加ボタン押下");
-  }, []);
-
-  const onEditButtonPress = useCallback(() => {
-    console.log("編集ボタン押下");
-  }, []);
-
-  const onSettingButtonPress = useCallback(() => {
-    console.log("設定ボタン押下");
-  }, []);
 
   return {
-    selected_id,
+    selectedId,
     setSelectedId,
     tasks,
     loading,
     error,
-    selected_data,
-    marked_dates,
+    selectedData,
+    markedDates,
     fetchTasks,
+    createTask,
     onDayPress,
     onItemPress,
-    onAddButtonPress,
-    onEditButtonPress,
-    onSettingButtonPress,
   };
 };
