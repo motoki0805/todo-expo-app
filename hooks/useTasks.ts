@@ -20,13 +20,13 @@ type NewTaskData = {
 
 
 type UseTasksResult = {
-  selectedId: string | undefined;
+  selected_id: string | undefined;
   setSelectedId: (id: string | undefined) => void;
   tasks: TaskData[];
   loading: boolean;
   error: string | null;
-  selectedData: string | null;
-  markedDates: { [key: string]: any };
+  selected_data: string | null;
+  marked_dates: { [key: string]: any };
   fetchTasks: (date_param?: string) => Promise<void>;
   createTask: (newTask: NewTaskData) => Promise<boolean>;
   onDayPress: (day: { dateString: string }) => void;
@@ -41,12 +41,12 @@ type UseTasksResult = {
  *
  */
 export const useTasksLogic = (): UseTasksResult => {
-  const [selectedId, setSelectedId] = useState<string>();
+  const [selected_id, setSelectedId] = useState<string>();
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedData, setSelectedDate] = useState<string | null>(null);
-  const [markedDates, setMarkedDates] = useState<{ [key: string]: any }>({});
+  const [selected_data, setSelectedDate] = useState<string | null>(null);
+  const [marked_dates, setMarkedDates] = useState<{ [key: string]: any }>({});
 
   const fetchTasks = useCallback(async (date_param?: string) => {
     try {
@@ -91,7 +91,7 @@ export const useTasksLogic = (): UseTasksResult => {
       setLoading(false);
     }
   }, []);
-
+  
   const createTask = useCallback(async (newTask: NewTaskData): Promise<boolean> => {
     try {
       setLoading(true);
@@ -102,7 +102,7 @@ export const useTasksLogic = (): UseTasksResult => {
       if (response.status === 201 || response.status === 200) {
         console.log("タスク登録成功:", response.data);
 
-        await fetchTasks(selectedData || undefined);
+        await fetchTasks(selected_data || undefined);
         return true;
       } else {
         setError(`タスクの登録に失敗しました。ステータスコード: ${response.status}`);
@@ -128,7 +128,7 @@ export const useTasksLogic = (): UseTasksResult => {
     } finally {
       setLoading(false);
     }
-  }, [fetchTasks, selectedData]);
+  }, [fetchTasks, selected_data]);
 
   useEffect(() => {
     fetchTasks();
@@ -150,7 +150,7 @@ export const useTasksLogic = (): UseTasksResult => {
     });
 
     setMarkedDates(newMarkedDates);
-  }, [tasks, selectedData]);
+  }, [tasks, selected_data]);
 
   // カレンダーの日付が選択された時のハンドラー
   const onDayPress = useCallback(
@@ -168,13 +168,13 @@ export const useTasksLogic = (): UseTasksResult => {
 
 
   return {
-    selectedId,
+    selected_id,
     setSelectedId,
     tasks,
     loading,
     error,
-    selectedData,
-    markedDates,
+    selected_data,
+    marked_dates,
     fetchTasks,
     createTask,
     onDayPress,

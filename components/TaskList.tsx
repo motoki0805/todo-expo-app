@@ -6,7 +6,7 @@ type TaskListProps = {
   tasks: TaskData[];
   loading: boolean;
   error: string | null;
-  selectedId: string | undefined;
+  selected_id: string | undefined;
   onItemPress: (id: string) => void;
 };
 
@@ -21,12 +21,12 @@ const TaskList = ({
   tasks,
   loading,
   error,
-  selectedId,
+  selected_id,
   onItemPress,
 }: TaskListProps) => {
   const render_item = ({ item }: { item: TaskData }) => {
-    const backgroundColor = item.id === selectedId ? "#a3a3a3" : "#f0f0f0";
-    const color = item.id === selectedId ? "white" : "black";
+    const backgroundColor = item.id === selected_id ? "#a3a3a3" : "#f0f0f0";
+    const color = item.id === selected_id ? "white" : "black";
 
     return (
       <TaskItem
@@ -49,7 +49,7 @@ const TaskList = ({
           data={tasks}
           renderItem={render_item}
           keyExtractor={(item) => item.id}
-          extraData={selectedId}
+          extraData={selected_id}
           style={{ width: "100%" }}
           contentContainerStyle={{ paddingBottom: 20 }}
         />

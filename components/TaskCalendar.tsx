@@ -23,7 +23,7 @@ const CALENDAR_THEME: CalendarTheme = {
 
 type TaskCalendarProps = {
   selected_date: string | null;
-  markedDates: { [key: string]: any };
+  marked_dates: { [key: string]: any };
   onDayPress: (day: { dateString: string }) => void;
 };
 
@@ -35,15 +35,15 @@ type TaskCalendarProps = {
  */
 const TaskCalendar = ({
   selected_date,
-  markedDates,
+  marked_dates,
   onDayPress,
 }: TaskCalendarProps) => {
-  const combinedMarkedDates = {
-    ...markedDates,
+  const combined_marked_dates = {
+    ...marked_dates,
     ...(selected_date
       ? {
           [selected_date]: {
-            ...markedDates[selected_date],
+            ...marked_dates[selected_date],
             selected: true,
             selectedColor: "blue",
           },
@@ -55,9 +55,8 @@ const TaskCalendar = ({
     <View style={styles.calendarContainer}>
       <Calendar
         onDayPress={onDayPress}
-        markedDates={combinedMarkedDates}
+        markedDates={combined_marked_dates}
         theme={CALENDAR_THEME}
-        monthFormat="yyyy年 MM月"
       />
     </View>
   );
@@ -67,8 +66,8 @@ const styles = StyleSheet.create({
   calendarContainer: {
     flex: 1,
     width: "95%",
-    marginHorizontal: "auto",
-    marginBottom: 0,
+    marginInline: "auto",
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
