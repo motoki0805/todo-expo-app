@@ -8,12 +8,12 @@ type NewTaskData = {
   title: string;
   content: string;
   name: string;
-  colorCode?: string | null;
-  chassisNumber?: string | null;
-  uName?: string | null;
-  workId: number;
-  carId: number;
-  userId: number;
+  color_code?: string | null;
+  chassis_number?: string | null;
+  u_name?: string | null;
+  work_id: number;
+  car_id: number;
+  user_id: number;
   remark?: string | null;
   completion: string;
 };
@@ -25,7 +25,7 @@ type UseTasksResult = {
   tasks: TaskData[];
   loading: boolean;
   error: string | null;
-  selected_data: string | null;
+  selected_date: string | null;
   marked_dates: { [key: string]: any };
   fetchTasks: (date_param?: string) => Promise<void>;
   createTask: (newTask: NewTaskData) => Promise<boolean>;
@@ -45,7 +45,7 @@ export const useTasksLogic = (): UseTasksResult => {
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selected_data, setSelectedDate] = useState<string | null>(null);
+  const [selected_date, setSelectedDate] = useState<string | null>(null);
   const [marked_dates, setMarkedDates] = useState<{ [key: string]: any }>({});
 
   const fetchTasks = useCallback(async (date_param?: string) => {
@@ -91,7 +91,7 @@ export const useTasksLogic = (): UseTasksResult => {
       setLoading(false);
     }
   }, []);
-  
+
   const createTask = useCallback(async (newTask: NewTaskData): Promise<boolean> => {
     try {
       setLoading(true);
@@ -102,7 +102,7 @@ export const useTasksLogic = (): UseTasksResult => {
       if (response.status === 201 || response.status === 200) {
         console.log("タスク登録成功:", response.data);
 
-        await fetchTasks(selected_data || undefined);
+        await fetchTasks(selected_date || undefined);
         return true;
       } else {
         setError(`タスクの登録に失敗しました。ステータスコード: ${response.status}`);
@@ -128,29 +128,49 @@ export const useTasksLogic = (): UseTasksResult => {
     } finally {
       setLoading(false);
     }
-  }, [fetchTasks, selected_data]);
+  }, [fetchTasks, selected_date]);
 
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
 
   useEffect(() => {
-    const newMarkedDates: { [key: string]: any } = {};
+    const new_marked_dates: { [key: string]: any } = {};
+    const task_by_date: { [key: string]: TaskData[] } = {};
 
     tasks.forEach((task) => {
       if (task.completion) {
         const date = new Date(task.completion);
         const dateString = date.toISOString().split("T")[0];
-        newMarkedDates[dateString] = {
-          ...(newMarkedDates[dateString] || {}),
+        if (!task_by_date[dateString]) {
+          task_by_date[dateString] = [];
+        }
+        task_by_date[dateString].push(task);
+      }
+
+      for (const dateString in task_by_date){
+        const daily_tasks = task_by_date[dateString];
+        new_marked_dates[dateString] = {
+          ...(new_marked_dates[dateString] || {}),
           marked: true,
           dotColor: "blue",
+          dots:[
+            {key:'tasks',color:daily_tasks.length > 3 ? 'red':'green',selectedDotColor: 'white'}
+          ]
         };
       }
     });
 
-    setMarkedDates(newMarkedDates);
-  }, [tasks, selected_data]);
+    if(selected_date){
+      new_marked_dates[selected_date] = {
+        ...(new_marked_dates[selected_date] || {}),
+        selected:true,
+        selectedColor:"blue",
+      };
+    }
+
+    setMarkedDates(new_marked_dates);
+  }, [tasks, selected_date]);
 
   // カレンダーの日付が選択された時のハンドラー
   const onDayPress = useCallback(
@@ -173,7 +193,7 @@ export const useTasksLogic = (): UseTasksResult => {
     tasks,
     loading,
     error,
-    selected_data,
+    selected_date,
     marked_dates,
     fetchTasks,
     createTask,
