@@ -71,7 +71,7 @@ Docker (Laravel Sail) を利用して、開発環境を構築しています。
 * **主なライブラリ:**
     * `laravel/sanctum`: `^3.0`
     * `barryvdh/laravel-dompdf`: `^2.0`
-    * (その他の依存関係は [todo/composer.json](https://github.com/motoki0805/todo/blob/main/composer.json) を参照してください。)
+* 現状はフロントソースのみ格納
 
 ## 💡 今後の展望・改善点
 * タスクの詳細表示機能の実装
