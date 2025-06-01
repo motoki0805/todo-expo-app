@@ -68,9 +68,9 @@ Docker (Laravel Sail) を利用して、開発環境を構築しています。
 
 ### バックエンド (Laravel / PHP / MySQL)
 
-* **Laravel Framework:** `9.19.x`
-* **PHP:** `8.1.x` (Laravel SailのDockerイメージより)
-* **MySQL:** `8.0.x` (Docker Composeファイルより)
+* **Laravel Framework:** `9.19`
+* **PHP:** `8.1` 
+* **MySQL:** `8.0`
 * **主なライブラリ:**
     * `laravel/sanctum`: `^3.0`
     * `barryvdh/laravel-dompdf`: `^2.0`
@@ -184,6 +184,5 @@ Docker (Laravel Sail) を利用して、開発環境を構築しています。
 * 車種管理機能の実装
 * より詳細なエラーハンドリングとUIフィードバックの強化
 * テストコードの追加
-* CI/CD (継続的インテグレーション/継続的デプロイ) の導入
-* 本番環境へのデプロイ (AWS EC2/RDSなど)
-* **ngrok を使用した一時的なインターネット公開** (必要に応じてこの項目を復活させ、手順を追記してください)
+* CI/CD の導入
+* 本番環境へのデプロイ (AWS EC2)
