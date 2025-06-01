@@ -30,7 +30,7 @@ Docker (Laravel Sail) を利用して、開発環境を構築しています。
       <img src="images/screenshot-tasklist.png" alt="タスク一覧画面" title="タスク一覧のスクリーンショット" width="100%" />
     </td>
     <td style="width:33%; text-align:center; vertical-align:top; padding:10px;">
-      <h3>タスク新規作成画面</h3>
+      <h3>タスク新規作成・編集画面</h3>
       <img src="images/screenshot-createtask.png" alt="タスク作成フォーム" title="タスク作成フォームのスクリーンショット" width="100%" />
     </td>
     <td style="width:33%; text-align:center; vertical-align:top; padding:10px;">
@@ -76,6 +76,7 @@ Docker (Laravel Sail) を利用して、開発環境を構築しています。
 * カレンダーからのタスク操作の追加
 * 認証（ログイン・ユーザー管理）機能の追加
 * 車種管理機能の実装
+* 設定機能の実装
 * より詳細なエラーハンドリングとUIフィードバックの強化
 * テストコードの追加
 * CI/CD の導入
