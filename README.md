@@ -24,9 +24,6 @@ Docker (Laravel Sail) を利用して、開発環境を構築しています。
     * Expo Router によるタブベースのナビゲーション（カレンダー、タスク一覧、設定）
 * **API連携:**
     * タスクデータの取得、登録など、すべてのデータ操作をRESTful API経由で行います
-* **（今後の実装予定）** タスクの詳細表示
-* **（今後の実装予定）** ログイン機能、車種管理機能
-
 画面イメージ
 <table style="width:100%; border-collapse: collapse;">
   <tr>
@@ -77,7 +74,6 @@ Docker (Laravel Sail) を利用して、開発環境を構築しています。
     * (その他の依存関係は [todo/composer.json](https://github.com/motoki0805/todo/blob/main/composer.json) を参照してください。)
 
 ## 💡 今後の展望・改善点
-
 * タスクの詳細表示機能の実装
 * カレンダーからのタスク操作の追加
 * 認証（ログイン・ユーザー管理）機能の追加
