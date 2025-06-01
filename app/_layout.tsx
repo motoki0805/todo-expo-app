@@ -1,63 +1,25 @@
-import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Stack } from "expo-router";
 import React from "react";
+import { PaperProvider } from "react-native-paper";
 
-export default function TabLayout() {
+export default function RootLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: "#007bff",
-        tabBarStyle: {
-          height: 60,
-          paddingBottom: 0,
-        },
-        tabBarLabelStyle: {
-          marginBottom: 0,
-        },
-        tabBarHideOnKeyboard: true,
-      }}
-    >
-      <Tabs.Screen
-        name="TaskListScreen"
-        options={{
-          title: "タスク一覧",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="list" color={color} size={size} />
-          ),
-          headerTitle: "すべてのタスク",
-        }}
-      />
-      <Tabs.Screen
-        name="CreateTaskScreen"
-        options={{
-          title: "タスク作成",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="add" color={color} size={size} />
-          ),
-          headerTitle: "タスク作成",
-        }}
-      />
-      <Tabs.Screen
-        name="TaskCalendarScreen"
-        options={{
-          title: "カレンダー",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar" color={color} size={size} />
-          ),
-          headerTitle: "タスクカレンダー",
-        }}
-      />
-      <Tabs.Screen
-        name="SettingScreen"
-        options={{
-          title: "設定",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings" color={color} size={size} />
-          ),
-          headerTitle: "設定",
-        }}
-      />
-    </Tabs>
+    <PaperProvider>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="CreateTaskScreen"
+          options={{
+            headerTitle: "タスク新規作成",
+          }}
+        />
+        <Stack.Screen
+          name="TaskEditScreen"
+          options={{
+            headerTitle: "タスク編集",
+          }}
+        />
+      </Stack>
+    </PaperProvider>
   );
 }

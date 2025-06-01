@@ -1,14 +1,13 @@
+import CustomAlertDialog from "@/components/CustomAlertDialog";
 import { API_BASE_URL, useTasksLogic } from "@/hooks/useTasks";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
-import { router } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
   Button,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -24,9 +23,35 @@ type MasterDataItem = {
   number?: string;
   code?: string;
   color_code?: string;
+  car_name?: string;
+  user_name?: string;
+  work_content?: string;
 };
 
-export default function CreateTaskScreen() {
+type NewTaskData = {
+  title: string;
+  content: string;
+  name: string;
+  chassis_number?: string | null;
+  u_name?: string | null;
+  color_id: number;
+  work_id: number;
+  car_id: number;
+  user_id: number;
+  remark?: string | null;
+  completion: string;
+};
+
+/**
+ * タスク編集画面
+ *
+ * タスク一覧画面で選択されたタスクの編集を行う画面
+ *
+ */
+export default function TaskEditScreen() {
+  const params = useLocalSearchParams();
+  const task_id = params.id as string;
+
   const [work_id, setWorkId] = useState<string | null>(null);
   const [car_id, setCarId] = useState<string | null>(null);
   const [chassis_number, setChassisNumber] = useState("");
@@ -36,7 +61,6 @@ export default function CreateTaskScreen() {
   const [completion_date, setCompletionDate] = useState(new Date());
   const [show_date_picker, setShowDatePicker] = useState(false);
 
-  // マスターデータ
   const [works, setWorks] = useState<MasterDataItem[]>([]);
   const [car_models, setCarModels] = useState<MasterDataItem[]>([]);
   const [colors, setColors] = useState<MasterDataItem[]>([]);
@@ -44,60 +68,116 @@ export default function CreateTaskScreen() {
   const [master_data_loading, setMasterDataLoading] = useState(true);
   const [master_data_error, setMasterDataError] = useState<string | null>(null);
 
-  const { createTask, loading, error } = useTasksLogic();
+  const {
+    updateTask,
+    loading,
+    error,
+    alert_dialog_config,
+    setAlertDialogConfig,
+  } = useTasksLogic();
 
-  // マスターデータ取得
+  const [initial_task_loading, setInitialTaskLoading] = useState(true);
+  const [initial_task_error, setInitialTaskError] = useState<string | null>(
+    null
+  );
+
   useEffect(() => {
-    const fetchMasterData = async () => {
+    // タスクデータ、マスターデータ取得
+    const fetchInitialData = async () => {
+      if (!task_id) {
+        setInitialTaskError("タスクIDが指定されていません。");
+        setInitialTaskLoading(false);
+        setMasterDataLoading(false);
+        return;
+      }
       try {
+        setInitialTaskLoading(true);
         setMasterDataLoading(true);
-        const response = await axios.get(`${API_BASE_URL}/tasks/create/init`);
-        setWorks(response.data.works);
-        setCarModels(response.data.carModels);
-        setColors(response.data.colors);
-        setUsers(response.data.users);
-        if (response.data.works.length > 0)
-          setWorkId(response.data.works[0].id.toString());
-        if (response.data.carModels.length > 0)
-          setCarId(response.data.carModels[0].id.toString());
-        if (response.data.colors.length > 0)
-          setColorId(response.data.colors[0].id.toString());
-        if (response.data.users.length > 0)
-          setUserId(response.data.users[0].id.toString());
+
+        const master_response = await axios.get(
+          `${API_BASE_URL}/tasks/create/init`
+        );
+
+        const api_works = master_response.data.works || [];
+        const api_car_models = master_response.data.carModels || [];
+        const api_colors = master_response.data.colors || [];
+        const api_users = master_response.data.users || [];
+
+        setWorks(api_works);
+        setCarModels(api_car_models);
+        setColors(api_colors);
+        setUsers(api_users);
+
+        const task_response = await axios.get(
+          `${API_BASE_URL}/tasks/${task_id}`
+        );
+        const fetched_task = task_response.data;
+
+        setWorkId(fetched_task.work_id?.toString() || null);
+        setCarId(fetched_task.car_id?.toString() || null);
+        setChassisNumber(fetched_task.chassis_number || "");
+        setColorId(fetched_task.color_id?.toString() || null);
+        setUserId(fetched_task.user_id?.toString() || null);
+        setRemark(fetched_task.remark || "");
+        setCompletionDate(
+          fetched_task.completion
+            ? new Date(fetched_task.completion)
+            : new Date()
+        );
+
+        if (master_response.data.works.length > 0 && !fetched_task.wo_id)
+          setWorkId(master_response.data.works[0].id.toString());
+        if (master_response.data.carModels.length > 0 && !fetched_task.ca_id)
+          setCarId(master_response.data.carModels[0].id.toString());
+        if (master_response.data.colors.length > 0 && !fetched_task.co_id)
+          setColorId(master_response.data.colors[0].id.toString());
+        if (master_response.data.users.length > 0 && !fetched_task.u_id)
+          setUserId(master_response.data.users[0].id.toString());
       } catch (err) {
-        console.error("マスターデータ取得エラー:", err);
-        setMasterDataError("マスターデータの取得に失敗しました。");
+        setInitialTaskError(
+          "タスクデータまたはマスターデータの取得に失敗しました。"
+        );
       } finally {
+        setInitialTaskLoading(false);
         setMasterDataLoading(false);
       }
     };
-    fetchMasterData();
-  }, []);
+    fetchInitialData();
+  }, [task_id]);
 
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    const currentDate = selectedDate || completion_date;
-    setShowDatePicker(Platform.OS === "ios");
-    setCompletionDate(currentDate);
+  const onDateChange = (event: any, selected_date_param?: Date) => {
+    const current_date = selected_date_param || completion_date;
+    setCompletionDate(current_date);
   };
 
   const showDatepicker = () => {
     setShowDatePicker(true);
   };
 
+  // 更新ボタン押下
   const handleSubmit = async () => {
     if (!work_id || !car_id || !chassis_number || !color_id || !user_id) {
-      Alert.alert(
-        "エラー",
-        "作業箇所、車名、車台番号、カラー、担当者は必須です。"
-      );
+      setAlertDialogConfig({
+        visible: true,
+        title: "エラー",
+        message: "作業箇所、車名、車台番号、カラー、担当者、作業日は必須です。",
+        onConfirm: () =>
+          setAlertDialogConfig((prev) => ({ ...prev, visible: false })),
+      });
       return;
     }
     if (!/^[0-9]{8}$/.test(chassis_number)) {
-      Alert.alert("エラー", "車台番号は8桁の数字で入力してください。");
+      setAlertDialogConfig({
+        visible: true,
+        title: "エラー",
+        message: "車台番号は8桁の数字で入力してください。",
+        onConfirm: () =>
+          setAlertDialogConfig((prev) => ({ ...prev, visible: false })),
+      });
       return;
     }
 
-    const newTaskData = {
+    const updated_task_data: NewTaskData = {
       work_id: parseInt(work_id),
       car_id: parseInt(car_id),
       chassis_number: chassis_number,
@@ -106,64 +186,66 @@ export default function CreateTaskScreen() {
       remark: remark || null,
       completion: completion_date.toISOString().split("T")[0],
       title:
-        car_models.find((cm) => cm.id === parseInt(car_id))?.name ||
-        "不明な車種",
+        works.find((w) => w.id === parseInt(work_id))?.content || "不明な作業",
       content:
         works.find((w) => w.id === parseInt(work_id))?.content || "不明な作業",
       name:
         car_models.find((cm) => cm.id === parseInt(car_id))?.name ||
         "不明な車種",
-      color_code:
-        colors.find((c) => c.id === parseInt(color_id))?.code || "不明な色",
-      uName:
+      u_name:
         users.find((u) => u.id === parseInt(user_id))?.name || "不明な担当者",
     };
 
-    const success = await createTask(newTaskData);
+    const success = await updateTask(task_id, updated_task_data);
     if (success) {
-      Alert.alert("成功", "タスクが登録されました！");
-      // フォームをクリア
-      setWorkId(works.length > 0 ? works[0].id.toString() : null);
-      setCarId(car_models.length > 0 ? car_models[0].id.toString() : null);
-      setChassisNumber("");
-      setColorId(colors.length > 0 ? colors[0].id.toString() : null);
-      setUserId(users.length > 0 ? users[0].id.toString() : null);
-      setRemark("");
-      setCompletionDate(new Date());
-
-      router.back();
+      setAlertDialogConfig({
+        visible: true,
+        title: "成功",
+        message: "タスクが更新されました。",
+        onConfirm: () => {
+          setAlertDialogConfig((prev) => ({ ...prev, visible: false }));
+          router.back();
+        },
+      });
     } else {
-      Alert.alert("エラー", error || "タスクの登録に失敗しました。");
+      setAlertDialogConfig({
+        visible: true,
+        title: "エラー",
+        message: error || "タスクの更新に失敗しました。",
+        onConfirm: () =>
+          setAlertDialogConfig((prev) => ({ ...prev, visible: false })),
+      });
     }
   };
 
-  if (master_data_loading) {
+  // ロード中/エラー表示
+  if (initial_task_loading || master_data_loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text>マスターデータを読み込み中...</Text>
+        <Text>データを読み込み中...</Text>
       </View>
     );
   }
-  if (master_data_error) {
+  if (initial_task_error || master_data_error) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorMessage}>{master_data_error}</Text>
+        <Text style={styles.errorMessage}>
+          {initial_task_error || master_data_error}
+        </Text>
       </View>
     );
   }
 
   return (
     <ScrollView style={styles.scrollContainer}>
-      {/* この画面のヘッダータイトル */}
+      <Stack.Screen options={{ headerTitle: "タスク編集" }} />
       <View style={styles.formContainer}>
-        <Text style={styles.formTitle}>タスクの登録</Text>
-
         {/* 作業箇所 */}
         <Text style={styles.label}>作業箇所：</Text>
         <View style={styles.pickerContainer}>
           <Picker
             selectedValue={work_id}
-            onValueChange={(itemValue: any) => setWorkId(itemValue)}
+            onValueChange={(item_value: any) => setWorkId(item_value)}
           >
             {works.map((work) => (
               <Picker.Item
@@ -180,13 +262,13 @@ export default function CreateTaskScreen() {
         <View style={styles.pickerContainer}>
           <Picker
             selectedValue={car_id}
-            onValueChange={(itemValue: any) => setCarId(itemValue)}
+            onValueChange={(item_value: any) => setCarId(item_value)}
           >
-            {car_models.map((car_models) => (
+            {car_models.map((car_model) => (
               <Picker.Item
-                key={car_models.id}
-                label={`${car_models.name}：${car_models.number}`}
-                value={car_models.id.toString()}
+                key={car_model.id}
+                label={`${car_model.name}：${car_model.number}`} // APIレスポンスのキー名を確認
+                value={car_model.id.toString()}
               />
             ))}
           </Picker>
@@ -216,7 +298,7 @@ export default function CreateTaskScreen() {
               ]}
               onPress={() => setColorId(color.id.toString())}
             >
-              <Text style={styles.colorLabel}>{color.code}</Text>
+              <Text style={styles.colorLabel}>{color.code}</Text>{" "}
             </TouchableOpacity>
           ))}
         </View>
@@ -226,7 +308,7 @@ export default function CreateTaskScreen() {
         <View style={styles.pickerContainer}>
           <Picker
             selectedValue={user_id}
-            onValueChange={(itemValue: any) => setUserId(itemValue)}
+            onValueChange={(item_value: any) => setUserId(item_value)}
           >
             {users.map((user) => (
               <Picker.Item
@@ -276,13 +358,22 @@ export default function CreateTaskScreen() {
         )}
 
         <Button
-          title={loading ? "登録中..." : "登録"}
+          title={loading ? "更新中..." : "タスクを更新"}
           onPress={handleSubmit}
-          disabled={loading || master_data_loading}
+          disabled={loading || initial_task_loading || master_data_loading}
           color="#007bff"
         />
         {error && <Text style={styles.errorMessage}>{error}</Text>}
       </View>
+      <CustomAlertDialog
+        visible={alert_dialog_config.visible}
+        title={alert_dialog_config.title}
+        message={alert_dialog_config.message}
+        onConfirm={alert_dialog_config.onConfirm}
+        onCancel={alert_dialog_config.onCancel}
+        confirm_text={alert_dialog_config.confirm_text}
+        cancel_text={alert_dialog_config.cancel_text}
+      />
     </ScrollView>
   );
 }
@@ -308,7 +399,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     margin: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
@@ -367,7 +461,10 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     textShadowColor: "rgba(0,0,0,0.5)",
-    textShadowOffset: { width: 1, height: 1 },
+    textShadowOffset: {
+      width: 1,
+      height: 1,
+    },
     textShadowRadius: 2,
   },
   dateInputContainer: {

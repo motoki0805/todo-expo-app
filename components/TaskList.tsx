@@ -7,7 +7,10 @@ type TaskListProps = {
   loading: boolean;
   error: string | null;
   selected_id: string | undefined;
-  onItemPress: (id: string) => void;
+  onItem: (id: string) => void;
+  onComplete: (id: string) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
 };
 
 /**
@@ -22,7 +25,10 @@ const TaskList = ({
   loading,
   error,
   selected_id,
-  onItemPress,
+  onItem,
+  onComplete,
+  onEdit,
+  onDelete,
 }: TaskListProps) => {
   const render_item = ({ item }: { item: TaskData }) => {
     const backgroundColor = item.id === selected_id ? "#a3a3a3" : "#f0f0f0";
@@ -31,9 +37,12 @@ const TaskList = ({
     return (
       <TaskItem
         item={item}
-        onPress={() => onItemPress(item.id)}
+        onPress={() => onItem(item.id)}
         backgroundColor={backgroundColor}
         textColor={color}
+        onComplete={onComplete}
+        onEdit={onEdit}
+        onDelete={onDelete}
       />
     );
   };
@@ -50,8 +59,8 @@ const TaskList = ({
           renderItem={render_item}
           keyExtractor={(item) => item.id}
           extraData={selected_id}
-          style={{ width: "100%" }}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          style={styles.flatList}
+          contentContainerStyle={styles.flatListContent}
         />
       )}
     </View>
