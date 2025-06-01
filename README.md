@@ -177,12 +177,6 @@ Docker (Laravel Sail) を利用して、開発環境を構築しています。
 3.  **スマートフォンまたはエミュレータでExpo Goアプリを開き、QRコードをスキャンしてアプリを起動する。**
     * アプリが起動し、Laravel APIからデータが正常に表示されるはずです。
 
-## 💻 開発における注意点
-
-* **API_BASE_URLの注意:** Androidエミュレータや実機（物理デバイス）から `http://localhost` にアクセスすると、エミュレータ/実機自身の `localhost` を参照してしまうため、ホストPCのLaravelに接続できません。この場合、ホストPCのローカルIPアドレス（例: `http://192.168.1.5/api`）またはAndroidエミュレータの特別なエイリアス（`http://10.0.2.2/api`）を使用する必要があります。
-* **命名規則:** フロントエンド (TypeScript) は `camelCase`、バックエンド (PHP/DB) は `snake_case` を採用しています。API送受信時に適切にマッピング・変換されます。
-* **エラー発生時:** `sail logs laravel.test -f` でLaravelのログ、`npx expo start` のターミナルでReact Nativeのログを確認してください。
-
 ## 💡 今後の展望・改善点
 
 * タスクの詳細表示、編集、完了、削除機能の実装
